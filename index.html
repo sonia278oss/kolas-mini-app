@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="be">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вандраванне з Якубам Коласам</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .menu-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .menu-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .user-stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            display: block;
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        @media (min-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎭 Вандраванне з Якубам Коласам</h1>
+            <p class="subtitle">Інтэрактыўная прастора для даследавання жыцця і творчасці</p>
+        </header>
+
+        <div class="menu-grid">
+            <div class="menu-card" onclick="openSection('map')">
+                <div class="menu-icon">🗺️</div>
+                <h3>Інтэрактыўная карта</h3>
+                <p>Дасьледуйце месцы, звязаныя з Якубам Коласам</p>
+            </div>
+
+            <div class="menu-card" onclick="openSection('museum')">
+                <div class="menu-icon">🏛️</div>
+                <h3>Віртуальны музэй</h3>
+                <p>3D экспанаты і інтэрактыўныя выставы</p>
+            </div>
+
+            <div class="menu-card" onclick="openSection('audio')">
+                <div class="menu-icon">🎭</div>
+                <h3>Аўдыё-тэатр</h3>
+                <p>Творы ў выкананні прафесійных актораў</p>
+            </div>
+        </div>
+
+        <div class="user-stats">
+            <div class="stat-item">
+                <span class="stat-number" id="locations-count">0</span>
+                <span class="stat-label">месцаў наведана</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="artifacts-count">0</span>
+                <span class="stat-label">экспанатаў</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="stories-count">0</span>
+                <span class="stat-label">твораў</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.setText("Вярнуцца да бота").show();
+        tg.MainButton.onClick(() => {
+            tg.close();
+        });
+
+        function openSection(section) {
+            switch(section) {
+                case 'map':
+                    window.location.href = 'map.html';
+                    break;
+                case 'museum':
+                    window.location.href = 'museum.html';
+                    break;
+                case 'audio':
+                    window.location.href = 'audio.html';
+                    break;
+            }
+        }
+
+        function loadStats() {
+            const stats = JSON.parse(localStorage.getItem('kolas_stats') || '{"locations":0,"artifacts":0,"stories":0}');
+            document.getElementById('locations-count').textContent = stats.locations;
+            document.getElementById('artifacts-count').textContent = stats.artifacts;
+            document.getElementById('stories-count').textContent = stats.stories;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadStats);
+    </script>
+</body>
+</html>

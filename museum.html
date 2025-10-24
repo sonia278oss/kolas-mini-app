@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="be">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Віртуальны музэй</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .back-button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .museum-rooms {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .room-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .room-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .artifact-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        .artifact-card:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+        .artifact-icon {
+            font-size: 24px;
+        }
+        .artifact-icon-large {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .artifact-detail {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .artifact-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .3d-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            .museum-rooms {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <button class="back-button" onclick="goBack()">← Назад</button>
+            <h1>🏛️ Віртуальны музэй</h1>
+        </header>
+
+        <div class="museum-rooms">
+            <div class="room-card" onclick="openRoom('childhood')">
+                <h3>👶 Дзяцінства</h3>
+                <p>Фота бацькоў, першыя запісы</p>
+            </div>
+
+            <div class="room-card" onclick="openRoom('education')">
+                <h3>🎓 Адукацыя</h3>
+                <p>Дыпломы, школьныя сшыткі</p>
+            </div>
+
+            <div class="room-card" onclick="openRoom('creative')">
+                <h3>📖 Творчасць</h3>
+                <p>Рукапісы, першыя выданні</p>
+            </div>
+        </div>
+
+        <div id="room-content"></div>
+    </div>
+
+    <script>
+        const artifacts = {
+            childhood: [
+                {
+                    id: 1,
+                    name: "Фота бацькоў",
+                    description: "Бацька Міхаіл Казіміравіч і маці Ганна Юр'еўна",
+                    details: "Бацька быў леснікам, маці - захавальніцай народных традыцый. Яны прывілі любоў да роднай мовы і культуры.",
+                    image: "📸"
+                },
+                {
+                    id: 2,
+                    name: "Першыя запісы",
+                    description: "Школьныя сшыткі і першыя вершы",
+                    details: "Першыя літаратурныя спробы ў школьныя гады. Ужо тады праяўляўся яго талент.",
+                    image: "📝"
+                }
+            ],
+            education: [
+                {
+                    id: 3,
+                    name: "Дыплом семінарыі",
+                    description: "Дыплом Нясвіжскай настаўніцкай семінарыі",
+                    details: "Скончыў семінарыю ў 1902 годзе. Атрымаў прафесію настаўніка.",
+                    image: "📜"
+                }
+            ]
+        };
+
+        function openRoom(room) {
+            const roomArtifacts = artifacts[room] || [];
+            const contentDiv = document.getElementById('room-content');
+
+            let html = `<div style="background: white; padding: 15px; border-radius: 10px; margin: 10px 0;"><h2>${getRoomName(room)}</h2></div>`;
+
+            roomArtifacts.forEach(artifact => {
+                html += `
+                    <div class="artifact-card" onclick="showArtifact(${artifact.id})">
+                        <div class="artifact-icon">${artifact.image}</div>
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 5px 0;">${artifact.name}</h4>
+                            <p style="margin: 0; color: #666; font-size: 14px;">${artifact.description}</p>
+                        </div>
+                    </div>
+                `;
+            });
+
+            contentDiv.innerHTML = html;
+        }
+
+        function showArtifact(artifactId) {
+            let artifact = null;
+            for (const room in artifacts) {
+                artifact = artifacts[room].find(a => a.id === artifactId);
+                if (artifact) break;
+            }
+
+            if (artifact) {
+                const contentDiv = document.getElementById('room-content');
+                contentDiv.innerHTML = `
+                    <div class="artifact-detail">
+                        <button class="back-button" onclick="openRoom('childhood')">← Назад да экспанатаў</button>
+                        <div class="artifact-header">
+                            <div class="artifact-icon-large">${artifact.image}</div>
+                            <h2>${artifact.name}</h2>
+                        </div>
+                        <div style="line-height: 1.6;">
+                            <p><strong>Апісанне:</strong> ${artifact.description}</p>
+                            <p><strong>Падрабязнасці:</strong> ${artifact.details}</p>
+                        </div>
+                        <button class="3d-btn" onclick="viewIn3D(${artifactId})">👁️ Паглядзець у 3D</button>
+                    </div>
+                `;
+            }
+        }
+
+        function viewIn3D(artifactId) {
+            alert('3D прагляд экспаната №' + artifactId + '\n(У рэальным прыкладанні тут быў бы 3D прагляд)');
+        }
+
+        function getRoomName(room) {
+            const names = {
+                'childhood': '👶 Дзяцінства',
+                'education': '🎓 Адукацыя',
+                'creative': '📖 Творчасць'
+            };
+            return names[room] || room;
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

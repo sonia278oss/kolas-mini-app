@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="be">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта Якуба Коласа</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .back-button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 3px solid #2196f3;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .location {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: #ff6b6b;
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            font-size: 20px;
+        }
+        .location:hover {
+            transform: scale(1.2);
+            background: #ff5252;
+        }
+        .location.visited {
+            background: #4caf50;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+        .location-info {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #2196f3;
+        }
+        .visit-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <button class="back-button" onclick="goBack()">← Назад</button>
+            <h1>🗺️ Інтэрактыўная карта</h1>
+        </header>
+
+        <div class="map-container" id="map">
+            <div class="location visited" style="left: 20%; top: 30%;" onclick="showLocationInfo(1)">
+                📍
+            </div>
+            <div class="location" style="left: 60%; top: 50%;" onclick="showLocationInfo(2)">
+                📍
+            </div>
+            <div class="location" style="left: 40%; top: 70%;" onclick="showLocationInfo(3)">
+                📍
+            </div>
+            <div class="location" style="left: 75%; top: 35%;" onclick="showLocationInfo(4)">
+                📍
+            </div>
+        </div>
+
+        <div class="locations-list">
+            <div class="location-info">
+                <h3>🗺️ Карта месцаў Якуба Коласа</h3>
+                <p>Націскайце на маркеры, каб даведацца больш пра кожнае месца</p>
+            </div>
+
+            <div id="location-details"></div>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+
+        const locations = [
+            {
+                id: 1,
+                name: "Акінчыцы",
+                description: "Тут нарадзіўся Якуб Колас 3 лістапада 1882 года. Невялікая вёсачка каля Стоўбцаў, акружаная лясамі.",
+                year: "1882",
+                visited: true
+            },
+            {
+                id: 2,
+                name: "Нясвіж",
+                description: "Вучыўся ў настаўніцкай семінарыі (1898-1902). Менавіта тут ён пачаў пісаць свае першыя вершы.",
+                year: "1898-1902",
+                visited: false
+            },
+            {
+                id: 3,
+                name: "Пінск",
+                description: "Працаваў настаўнікам, тут пазнаёміўся з будучай жонкай Марыяй Дзмітрыеўнай.",
+                year: "1912",
+                visited: false
+            },
+            {
+                id: 4,
+                name: "Мінск",
+                description: "Правёў апошнія гады жыцця, тут знаходзіцца яго музей і помнік.",
+                year: "1945-1956",
+                visited: false
+            }
+        ];
+
+        function showLocationInfo(locationId) {
+            const location = locations.find(loc => loc.id === locationId);
+            if (!location) return;
+
+            const detailsDiv = document.getElementById('location-details');
+            detailsDiv.innerHTML = `
+                <div class="location-info">
+                    <h3>📍 ${location.name} (${location.year})</h3>
+                    <p>${location.description}</p>
+                    ${!location.visited ? `<button class="visit-btn" onclick="visitLocation(${locationId})">Наведаць гэта месца</button>` : ''}
+                </div>
+            `;
+
+            if (!location.visited) {
+                location.visited = true;
+                updateMap();
+                updateStats();
+            }
+        }
+
+        function visitLocation(locationId) {
+            const location = locations.find(loc => loc.id === locationId);
+            if (location && !location.visited) {
+                location.visited = true;
+                updateMap();
+                updateStats();
+
+                const locationElement = document.querySelector(`.location[onclick="showLocationInfo(${locationId})"]`);
+                locationElement.classList.add('visited');
+
+                showLocationInfo(locationId);
+            }
+        }
+
+        function updateMap() {
+            locations.forEach(location => {
+                const element = document.querySelector(`.location[onclick="showLocationInfo(${location.id})"]`);
+                if (element && location.visited) {
+                    element.classList.add('visited');
+                }
+            });
+        }
+
+        function updateStats() {
+            const visitedCount = locations.filter(loc => loc.visited).length;
+            const stats = JSON.parse(localStorage.getItem('kolas_stats') || '{"locations":0,"artifacts":0,"stories":0}');
+            stats.locations = visitedCount;
+            localStorage.setItem('kolas_stats', JSON.stringify(stats));
+
+            if (tg && tg.sendData) {
+                tg.sendData(JSON.stringify({
+                    action: 'update_stats',
+                    stats: stats
+                }));
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', updateMap);
+    </script>
+</body>
+</html>
