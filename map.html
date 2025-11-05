@@ -42,35 +42,55 @@
         .map-container {
             position: relative;
             width: 100%;
-            height: 400px;
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            border: 3px solid #2196f3;
+            height: 500px;
+            background: white;
             border-radius: 15px;
             margin: 20px 0;
             overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
-        .location {
+        #map-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #f5f5f5;
+        }
+        .location-marker {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             background: #ff6b6b;
             border: 3px solid white;
             border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
             font-size: 20px;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s infinite;
         }
-        .location:hover {
-            transform: scale(1.2);
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(255, 107, 107, 0.6);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(255, 107, 107, 0.9);
+            }
+        }
+        .location-marker:hover {
+            transform: translate(-50%, -50%) scale(1.3);
             background: #ff5252;
         }
-        .location.visited {
+        .location-marker.visited {
             background: #4caf50;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.6);
+            animation: none;
+        }
+        .location-marker.visited:hover {
+            transform: translate(-50%, -50%) scale(1.3);
         }
         .location-info {
             background: white;
@@ -78,17 +98,78 @@
             border-radius: 15px;
             margin: 15px 0;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-left: 4px solid #2196f3;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .location-photo {
+            width: 100%;
+            max-height: 350px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         }
         .visit-btn {
             background: #4caf50;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
             margin-top: 10px;
-            font-size: 14px;
+            font-size: 16px;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .visit-btn:hover {
+            background: #45a049;
+        }
+        .photo-placeholder {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            margin: 15px 0;
+            font-size: 48px;
+        }
+        .location-info h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .location-info p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .photo-section {
+            margin: 20px 0;
+        }
+        .photo-section h4 {
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+        .visited-badge {
+            text-align: center;
+            color: #4caf50;
+            margin-top: 15px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -99,40 +180,41 @@
             <h1>🗺️ Інтэрактыўная карта</h1>
         </header>
 
-        <div class="map-container" id="map">
-            <div class="location visited" style="left: 20%; top: 30%;" onclick="showLocationInfo(1)">
+        <div class="map-container">
+            <!-- Реальная карта Беларуси как фон -->
+            <img src="https://i.pinimg.com/736x/b5/1a/25/b51a25ce3da6271736fd81ad440b443c.jpg"
+                 alt="Карта Беларусі" id="map-image">
+
+            <!-- Маркеры на карте с приблизительными координатами -->
+            <!-- Акінчыцы (около Стоўбцаў) -->
+            <div class="location-marker visited" style="left: 40%; top: 45%;" onclick="showLocationInfo(1)" title="Акінчыцы">
                 📍
             </div>
-            <div class="location" style="left: 60%; top: 50%;" onclick="showLocationInfo(2)">
+            <!-- Нясвіж -->
+            <div class="location-marker" style="left: 35%; top: 50%;" onclick="showLocationInfo(2)" title="Нясвіж">
                 📍
             </div>
-            <div class="location" style="left: 40%; top: 70%;" onclick="showLocationInfo(3)">
+            <!-- Пінск -->
+            <div class="location-marker" style="left: 30%; top: 70%;" onclick="showLocationInfo(3)" title="Пінск">
                 📍
             </div>
-            <div class="location" style="left: 75%; top: 35%;" onclick="showLocationInfo(4)">
+            <!-- Мінск -->
+            <div class="location-marker" style="left: 55%; top: 35%;" onclick="showLocationInfo(4)" title="Мінск">
                 📍
             </div>
         </div>
 
-        <div class="locations-list">
-            <div class="location-info">
-                <h3>🗺️ Карта месцаў Якуба Коласа</h3>
-                <p>Націскайце на маркеры, каб даведацца больш пра кожнае месца</p>
-            </div>
-
-            <div id="location-details"></div>
-        </div>
+        <div id="location-details"></div>
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-
         const locations = [
             {
                 id: 1,
                 name: "Акінчыцы",
                 description: "Тут нарадзіўся Якуб Колас 3 лістапада 1882 года. Невялікая вёсачка каля Стоўбцаў, акружаная лясамі.",
                 year: "1882",
+                photo: "https://avatars.dzeninfra.ru/get-zen_doc/1546191/pub_5e7b31ee1b356e4e6a15186f_5e7b336b9f5a5b2687f8d69a/scale_1200",
                 visited: true
             },
             {
@@ -140,6 +222,7 @@
                 name: "Нясвіж",
                 description: "Вучыўся ў настаўніцкай семінарыі (1898-1902). Менавіта тут ён пачаў пісаць свае першыя вершы.",
                 year: "1898-1902",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Nia%C5%9Bvi%C5%BE%2C_Rynak%2C_Daminikanski._%D0%9D%D1%8F%D1%81%D1%8C%D0%B2%D1%96%D0%B6%2C_%D0%A0%D1%8B%D0%BD%D0%B0%D0%BA%2C_%D0%94%D0%B0%D0%BC%D1%96%D0%BD%D1%96%D0%BA%D0%B0%D0%BD%D1%81%D0%BA%D1%96_%281907-17%29.jpg/1200px-Nia%C5%9Bvi%C5%BE%2C_Rynak%2C_Daminikanski._%D0%9D%D1%8F%D1%81%D1%8C%D0%B2%D1%96%D0%B6%2C_%D0%A0%D1%8B%D0%BD%D0%B0%D0%BA%2C_%D0%94%D0%B0%D0%BC%D1%96%D0%BD%D1%96%D0%BA%D0%B0%D0%BD%D1%81%D0%BA%D1%96_%281907-17%29.jpg",
                 visited: false
             },
             {
@@ -147,6 +230,7 @@
                 name: "Пінск",
                 description: "Працаваў настаўнікам, тут пазнаёміўся з будучай жонкай Марыяй Дзмітрыеўнай.",
                 year: "1912",
+                photo: "https://i.pinimg.com/736x/72/12/05/7212054a800e8fcb5801e0910d66a4ee.jpg",
                 visited: false
             },
             {
@@ -154,6 +238,7 @@
                 name: "Мінск",
                 description: "Правёў апошнія гады жыцця, тут знаходзіцца яго музей і помнік.",
                 year: "1945-1956",
+                photo: "https://avatars.mds.yandex.net/get-altay/1363018/2a000001642ab481f1cdfd082c2298ca3b06/L_height",
                 visited: false
             }
         ];
@@ -167,15 +252,32 @@
                 <div class="location-info">
                     <h3>📍 ${location.name} (${location.year})</h3>
                     <p>${location.description}</p>
-                    ${!location.visited ? `<button class="visit-btn" onclick="visitLocation(${locationId})">Наведаць гэта месца</button>` : ''}
+
+                    <div class="photo-section">
+                        <h4>📷 Фота месца:</h4>
+                        <img src="${location.photo}"
+                             alt="${location.name}"
+                             class="location-photo"
+                             onerror="this.style.display='none'; document.getElementById('placeholder-${locationId}').style.display='flex';">
+                        <div id="placeholder-${locationId}" class="photo-placeholder" style="display: none;">
+                            🏞️ Фота загружаецца...
+                        </div>
+                    </div>
+
+                    ${!location.visited ? `
+                        <button class="visit-btn" onclick="visitLocation(${locationId})">
+                            ✅ Пазначыць як наведанае
+                        </button>
+                    ` : `
+                        <div class="visited-badge">
+                            ✅ Вы ўжо наведалі гэта месца
+                        </div>
+                    `}
                 </div>
             `;
 
-            if (!location.visited) {
-                location.visited = true;
-                updateMap();
-                updateStats();
-            }
+            // Плавная прокрутка к информации
+            detailsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function visitLocation(locationId) {
@@ -185,16 +287,20 @@
                 updateMap();
                 updateStats();
 
-                const locationElement = document.querySelector(`.location[onclick="showLocationInfo(${locationId})"]`);
-                locationElement.classList.add('visited');
+                // Обновляем маркер на карте
+                const locationElement = document.querySelector(`.location-marker[onclick="showLocationInfo(${locationId})"]`);
+                if (locationElement) {
+                    locationElement.classList.add('visited');
+                }
 
+                // Обновляем информацию о локации
                 showLocationInfo(locationId);
             }
         }
 
         function updateMap() {
             locations.forEach(location => {
-                const element = document.querySelector(`.location[onclick="showLocationInfo(${location.id})"]`);
+                const element = document.querySelector(`.location-marker[onclick="showLocationInfo(${location.id})"]`);
                 if (element && location.visited) {
                     element.classList.add('visited');
                 }
@@ -206,20 +312,29 @@
             const stats = JSON.parse(localStorage.getItem('kolas_stats') || '{"locations":0,"artifacts":0,"stories":0}');
             stats.locations = visitedCount;
             localStorage.setItem('kolas_stats', JSON.stringify(stats));
-
-            if (tg && tg.sendData) {
-                tg.sendData(JSON.stringify({
-                    action: 'update_stats',
-                    stats: stats
-                }));
-            }
         }
 
         function goBack() {
             window.location.href = 'index.html';
         }
 
-        document.addEventListener('DOMContentLoaded', updateMap);
+        // Загружаем сохраненные данные о посещенных местах
+        document.addEventListener('DOMContentLoaded', function() {
+            const stats = JSON.parse(localStorage.getItem('kolas_stats') || '{"locations":0,"artifacts":0,"stories":0}');
+
+            // Отмечаем посещенные места
+            if (stats.locations > 0) {
+                locations.forEach((location, index) => {
+                    if (index < stats.locations) {
+                        location.visited = true;
+                    }
+                });
+                updateMap();
+            }
+
+            // Показываем первую локацию при загрузке
+            showLocationInfo(1);
+        });
     </script>
 </body>
 </html>
