@@ -38,6 +38,10 @@
             cursor: pointer;
             margin-bottom: 20px;
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
         }
         .museum-rooms {
             display: grid;
@@ -54,8 +58,8 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .room-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
         .artifact-card {
             background: white;
@@ -67,39 +71,119 @@
             align-items: center;
             gap: 15px;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .artifact-card:hover {
             background: #f8f9fa;
             transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .artifact-icon {
-            font-size: 24px;
-        }
-        .artifact-icon-large {
-            font-size: 48px;
-            text-align: center;
-            margin: 20px 0;
+        .artifact-thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .artifact-detail {
             background: white;
             padding: 20px;
             border-radius: 15px;
             margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
         .artifact-header {
             text-align: center;
             margin-bottom: 20px;
         }
-        .3d-btn {
+        .artifact-image-large {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn-3d {
             background: #667eea;
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 15px;
+            margin: 10px 5px;
             font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .btn-3d:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-read {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-read:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .model-3d-container {
             width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .model-3d-container.active {
+            display: flex;
+        }
+        .model-3d-object {
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            animation: rotate3d 10s infinite linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            backdrop-filter: blur(10px);
+        }
+        @keyframes rotate3d {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        .room-title {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
         @media (min-width: 768px) {
             .museum-rooms {
@@ -128,7 +212,7 @@
 
             <div class="room-card" onclick="openRoom('creative')">
                 <h3>📖 Творчасць</h3>
-                <p>Рукапісы, першыя выданні</p>
+                <p>Вершы, паэмы, апавяданні</p>
             </div>
         </div>
 
@@ -143,37 +227,118 @@
                     name: "Фота бацькоў",
                     description: "Бацька Міхаіл Казіміравіч і маці Ганна Юр'еўна",
                     details: "Бацька быў леснікам, маці - захавальніцай народных традыцый. Яны прывілі любоў да роднай мовы і культуры.",
-                    image: "📸"
+                    image: "https://fsd.multiurok.ru/html/2019/02/26/s_5c7470fb9c04d/img4.jpg",
+                    model3d: "👨‍👩"
                 },
                 {
                     id: 2,
+                    name: "Родны дом у Акінчыцах",
+                    description: "Хата, дзе нарадзіўся Якуб Колас",
+                    details: "Невялікая сялянская хата ў вёсцы Акінчыцы каля Стоўбцаў. Тут прайшло яго дзяцінства.",
+                    image: "https://avatars.dzeninfra.ru/get-zen_doc/1546191/pub_5e7b31ee1b356e4e6a15186f_5e7b336b9f5a5b2687f8d69a/scale_1200",
+                    model3d: "🏠"
+                },
+                {
+                    id: 3,
                     name: "Першыя запісы",
                     description: "Школьныя сшыткі і першыя вершы",
-                    details: "Першыя літаратурныя спробы ў школьныя гады. Ужо тады праяўляўся яго талент.",
-                    image: "📝"
+                    details: "Першыя літаратурныя спробы ў школьныя гады. Ужо тады праяўляўся яго талент да паэзіі.",
+                    image: "https://gorbibl.gomel.by/templates/ggcbs/images/museum/img/37_1.jpg",
+                    model3d: "📝"
                 }
             ],
             education: [
                 {
-                    id: 3,
+                    id: 4,
+                    name: "Нясвіжская семінарыя",
+                    description: "Будынак настаўніцкай семінарыі",
+                    details: "Вучыўся ў Нясвіжскай настаўніцкай семінарыі з 1898 па 1902 год. Менавіта тут пачаў сур'ёзна займацца літаратурай.",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Nia%C5%9Bvi%C5%BE%2C_Rynak%2C_Daminikanski._%D0%9D%D1%8F%D1%81%D1%8C%D0%B2%D1%96%D0%B6%2C_%D0%A0%D1%8B%D0%BD%D0%B0%D0%BA%2C_%D0%94%D0%B0%D0%BC%D1%96%D0%BD%D1%96%D0%BA%D0%B0%D0%BD%D1%81%D0%BA%D1%96_%281907-17%29.jpg/1200px-Nia%C5%9Bvi%C5%BE%2C_Rynak%2C_Daminikanski._%D0%9D%D1%8F%D1%81%D1%8C%D0%B2%D1%96%D0%B6%2C_%D0%A0%D1%8B%D0%BD%D0%B0%D0%BA%2C_%D0%94%D0%B0%D0%BC%D1%96%D0%BD%D1%96%D0%BA%D0%B0%D0%BD%D1%81%D0%BA%D1%96_%281907-17%29.jpg",
+                    model3d: "🎓"
+                },
+                {
+                    id: 5,
                     name: "Дыплом семінарыі",
-                    description: "Дыплом Нясвіжскай настаўніцкай семінарыі",
-                    details: "Скончыў семінарыю ў 1902 годзе. Атрымаў прафесію настаўніка.",
-                    image: "📜"
+                    description: "Дыплом настаўніка",
+                    details: "Скончыў семінарыю ў 1902 годзе з адзнакай. Атрымаў прафесію настаўніка, якой займаўся многія годы.",
+                    image: "https://www.mfec.by/images/novosti/2022/OCTOBER/3110/6/2.png",
+                    model3d: "📜"
+                }
+            ],
+            creative: [
+                {
+                    id: 6,
+                    name: "Новая зямля",
+                    description: "Паэма (1911-1923)",
+                    details: "Адна з самых значных твораў беларускай літаратуры. Паэма пра вызваленне сялян ад прыгнёту.",
+                    image: "http://lib.narbel.bsu.by/wp-content/uploads/2024/05/novaya-zjamlja.jpg",
+                    model3d: "📚",
+                    readLink: "https://rv-blr.com/literature/63/"
+                },
+                {
+                    id: 7,
+                    name: "Сымон-музыка",
+                    description: "Паэма (1925)",
+                    details: "Паэма пра музыканта-вандроўніка, які нясе людзям мастацтва і прыгажосць.",
+                    image: "https://i.pinimg.com/474x/d1/4c/0f/d14c0f1a9e63c93ab5fd19004d0647fb.jpg",
+                    model3d: "🎵",
+                    readLink: "https://rv-blr.com/literature/charter/24283/"
+                },
+                {
+                    id: 8,
+                    name: "На ростанях",
+                    description: "Раман-трылогія (1954-1957)",
+                    details: "Аўтабіяграфічны раман аб жыцці беларускага народа ў канцы XIX - пачатку XX стагоддзя.",
+                    image: "https://lib.vsu.by/web_resurs/yakub_kolas/images/kolas/masterstvo/na_rost.jpg",
+                    model3d: "📖",
+                    readLink: "https://knihi.com/Jakub_Kolas/Na_rostaniach.html"
+                },
+                {
+                    id: 9,
+                    name: "Трыццаць тры зубы",
+                    description: "Апавяданне (1933)",
+                    details: "Сатырычнае апавяданне пра прыгоды селяніна, які пайшоў лячыць зубы ў горад.",
+                    image: "https://www.sb.by/upload/iblock/33_zuby.jpg",
+                    model3d: "😁",
+                    readLink: "https://knihi.com/none/Jakub_Kolas/33_zuby.html"
+                },
+                {
+                    id: 10,
+                    name: "Песні-жальбы",
+                    description: "Зборнік вершаў (1910)",
+                    details: "Першы паэтычны зборнік, які прынёс славу Якубу Коласу. Вершы пра цяжкое жыццё беларускага сяляніна.",
+                    image: "https://narbel.bsu.by/wp-content/uploads/2018/07/gggi004.jpg",
+                    model3d: "🎼",
+                    readLink: "https://catholic.by/3/3/lib/pray/4520-pesni-zhalby?ysclid=mhmd9c1fn468585350"
+                },
+                {
+                    id: 11,
+                    name: "Рыбакова хата",
+                    description: "Апавяданне (1947)",
+                    details: "Апавяданне пра жыццё простых людзей на беразе ракі, іх штодзённыя клопаты і радасці.",
+                    image: "https://cdn1.ozone.ru/s3/multimedia-1-n/7179578879.jpg",
+                    model3d: "🏚️",
+                    readLink: "https://knihi.com/Jakub_Kolas/Rybakova_chata-rus.html"
                 }
             ]
         };
 
+        let currentRoom = null;
+
         function openRoom(room) {
+            currentRoom = room;
             const roomArtifacts = artifacts[room] || [];
             const contentDiv = document.getElementById('room-content');
 
-            let html = `<div style="background: white; padding: 15px; border-radius: 10px; margin: 10px 0;"><h2>${getRoomName(room)}</h2></div>`;
+            let html = `<div class="room-title"><h2>${getRoomName(room)}</h2></div>`;
 
             roomArtifacts.forEach(artifact => {
                 html += `
                     <div class="artifact-card" onclick="showArtifact(${artifact.id})">
-                        <div class="artifact-icon">${artifact.image}</div>
+                        <img src="${artifact.image}"
+                             alt="${artifact.name}"
+                             class="artifact-thumbnail"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 font-size=%2240%22%3E${artifact.model3d}%3C/text%3E%3C/svg%3E'">
                         <div style="flex: 1;">
                             <h4 style="margin: 0 0 5px 0;">${artifact.name}</h4>
                             <p style="margin: 0; color: #666; font-size: 14px;">${artifact.description}</p>
@@ -196,23 +361,45 @@
                 const contentDiv = document.getElementById('room-content');
                 contentDiv.innerHTML = `
                     <div class="artifact-detail">
-                        <button class="back-button" onclick="openRoom('childhood')">← Назад да экспанатаў</button>
+                        <button class="back-button" onclick="openRoom('${currentRoom}')">← Назад да экспанатаў</button>
                         <div class="artifact-header">
-                            <div class="artifact-icon-large">${artifact.image}</div>
                             <h2>${artifact.name}</h2>
                         </div>
-                        <div style="line-height: 1.6;">
-                            <p><strong>Апісанне:</strong> ${artifact.description}</p>
-                            <p><strong>Падрабязнасці:</strong> ${artifact.details}</p>
+
+                        <img src="${artifact.image}"
+                             alt="${artifact.name}"
+                             class="artifact-image-large"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 font-size=%22100%22%3E${artifact.model3d}%3C/text%3E%3C/svg%3E'">
+
+                        <div style="line-height: 1.6; margin: 20px 0;">
+                            <p><strong>📝 Апісанне:</strong> ${artifact.description}</p>
+                            <p><strong>ℹ️ Падрабязнасці:</strong> ${artifact.details}</p>
                         </div>
-                        <button class="3d-btn" onclick="viewIn3D(${artifactId})">👁️ Паглядзець у 3D</button>
+
+                        <div id="model-3d-${artifactId}" class="model-3d-container">
+                            <div class="model-3d-object">${artifact.model3d}</div>
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn-3d" onclick="toggle3D(${artifactId})">
+                                👁️ 3D мадэль
+                            </button>
+                            ${artifact.readLink ? `
+                                <a href="${artifact.readLink}" target="_blank" class="btn-read">
+                                    📖 Чытаць твор
+                                </a>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
             }
         }
 
-        function viewIn3D(artifactId) {
-            alert('3D прагляд экспаната №' + artifactId + '\n(У рэальным прыкладанні тут быў бы 3D прагляд)');
+        function toggle3D(artifactId) {
+            const model = document.getElementById(`model-3d-${artifactId}`);
+            if (model) {
+                model.classList.toggle('active');
+            }
         }
 
         function getRoomName(room) {
@@ -227,6 +414,11 @@
         function goBack() {
             window.location.href = 'index.html';
         }
+
+        // Показываем первую комнату при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            openRoom('childhood');
+        });
     </script>
 </body>
 </html>
