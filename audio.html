@@ -75,37 +75,97 @@
         .player-controls {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
             margin: 15px 0;
         }
         .player-controls button {
-            background: none;
+            background: #667eea;
             border: none;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
-            padding: 10px;
+            padding: 12px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .player-controls button:hover {
+            background: #5a6fd8;
+            transform: scale(1.1);
+        }
+        .progress-container {
+            margin: 15px 0;
         }
         .progress-bar {
             background: #e0e0e0;
-            height: 6px;
-            border-radius: 3px;
-            margin: 15px 0;
+            height: 8px;
+            border-radius: 4px;
             overflow: hidden;
+            cursor: pointer;
         }
         .progress {
             background: #667eea;
             height: 100%;
-            width: 30%;
-            transition: width 0.3s ease;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
         }
         .close-btn {
             background: #ff6b6b;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+        .close-btn:hover {
+            background: #ff5252;
+        }
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .volume-slider {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
         }
     </style>
 </head>
@@ -122,7 +182,7 @@
                 <div style="flex: 1;">
                     <h3 style="margin: 0 0 5px 0;">Новая зямля</h3>
                     <p style="margin: 0 0 5px 0; color: #666;">Эпічная паэма пра жыццё беларускага народа</p>
-                    <span class="duration">⏱ 15 хвілін</span>
+                    <span class="duration">⏱ 2:45</span>
                 </div>
             </div>
 
@@ -131,7 +191,7 @@
                 <div style="flex: 1;">
                     <h3 style="margin: 0 0 5px 0;">Сымон-музыка</h3>
                     <p style="margin: 0 0 5px 0; color: #666;">Аповесць пра таленавітага музыканта</p>
-                    <span class="duration">⏱ 12 хвілін</span>
+                    <span class="duration">⏱ 3:15</span>
                 </div>
             </div>
 
@@ -140,66 +200,134 @@
                 <div style="flex: 1;">
                     <h3 style="margin: 0 0 5px 0;">Трясина</h3>
                     <p style="margin: 0 0 5px 0; color: #666;">Апавяданне пра жыццё ў балоцістай мясцовасці</p>
-                    <span class="duration">⏱ 8 хвілін</span>
+                    <span class="duration">⏱ 1:52</span>
                 </div>
             </div>
         </div>
 
         <div id="player" class="audio-player" style="display: none;">
-            <h3 id="now-playing" style="margin: 0 0 15px 0;">Зараз грае:</h3>
+            <h3 id="now-playing" style="margin: 0 0 15px 0; text-align: center;">Зараз грае:</h3>
+
+            <div class="progress-container">
+                <div class="progress-bar" onclick="seekAudio(event)">
+                    <div class="progress" id="audio-progress"></div>
+                </div>
+                <div class="time-display">
+                    <span id="current-time">0:00</span>
+                    <span id="duration-time">0:00</span>
+                </div>
+            </div>
+
             <div class="player-controls">
-                <button onclick="skipBack()">⏮️</button>
-                <button onclick="togglePlay()" id="play-btn">▶️</button>
-                <button onclick="skipForward()">⏭️</button>
+                <button onclick="skipBack()" title="На 10 секунд назад">⏪</button>
+                <button onclick="togglePlay()" id="play-btn" title="Пуск/Пауза">▶️</button>
+                <button onclick="skipForward()" title="На 10 секунд вперед">⏩</button>
             </div>
-            <div class="progress-bar">
-                <div class="progress"></div>
+
+            <div class="volume-control">
+                <span>🔊</span>
+                <input type="range" class="volume-slider" id="volume" min="0" max="100" value="70" oninput="setVolume(this.value)">
+                <span>🔈</span>
             </div>
-            <button onclick="closePlayer()" class="close-btn">✖️ Спыніць</button>
+
+            <button onclick="closePlayer()" class="close-btn">✖️ Спыніць і закрыць</button>
         </div>
     </div>
 
     <script>
+        // ЗАМЕНИТЕ НА ПУТИ К ВАШИМ ЛОКАЛЬНЫМ АУДИОФАЙЛАМ
+        // Создайте папку 'audio' рядом с HTML файлом и поместите туда файлы
         const audioStories = [
             {
                 id: 1,
                 title: "Новая зямля",
                 description: "Эпічная паэма пра жыццё беларускага народа",
-                duration: "15 хвілін"
+                audioUrl: "audio/novaya_zemlya.mp3", // Ваш локальный файл
+                duration: "2:45"
             },
             {
                 id: 2,
                 title: "Сымон-музыка",
                 description: "Аповесць пра таленавітага музыканта",
-                duration: "12 хвілін"
+                audioUrl: "audio/symon_muzyka.mp3", // Ваш локальный файл
+                duration: "3:15"
             },
             {
                 id: 3,
-                title: "Трясина",
-                description: "Апавяданне пра жыццё ў балоцістай мясцовасці",
-                duration: "8 хвілін"
+                title: "Ручэй",
+                description: "Верш пра жыццё ручайка",
+                audioUrl: "audio/tryasina.mp3", // Ваш локальный файл
+                duration: "1:52"
             }
         ];
 
         let currentAudio = null;
+        let audioElement = null;
         let isPlaying = false;
 
         function playAudio(audioId) {
-            const audio = audioStories.find(a => a.id === audioId);
-            if (!audio) return;
+            const audioData = audioStories.find(a => a.id === audioId);
+            if (!audioData) return;
 
-            currentAudio = audio;
-            document.getElementById('now-playing').textContent = `Зараз грае: ${audio.title}`;
+            // Останавливаем предыдущее аудио
+            if (audioElement) {
+                audioElement.pause();
+            }
+
+            // Создаем новый аудио элемент
+            audioElement = new Audio(audioData.audioUrl);
+            currentAudio = audioData;
+
+            // Применяем громкость
+            audioElement.volume = document.getElementById('volume').value / 100;
+
+            // Настраиваем элементы интерфейса
+            document.getElementById('now-playing').textContent = `Зараз грае: ${audioData.title}`;
             document.getElementById('player').style.display = 'block';
-            isPlaying = true;
-            updatePlayButton();
 
-            console.log('Воспроизведение:', audio.title);
+            // События аудио
+            audioElement.addEventListener('loadedmetadata', function() {
+                document.getElementById('duration-time').textContent = formatTime(audioElement.duration);
+            });
+
+            audioElement.addEventListener('ended', function() {
+                isPlaying = false;
+                updatePlayButton();
+                resetProgress();
+            });
+
+            audioElement.addEventListener('timeupdate', updateProgress);
+
+            audioElement.addEventListener('error', function(e) {
+                console.error('Ошибка загрузки аудио:', e);
+                alert('Памылка загрузкі аудыё. Праверце, што файл знаходзіцца ў папцы "audio".');
+            });
+
+            // Начинаем воспроизведение
+            audioElement.play().then(() => {
+                isPlaying = true;
+                updatePlayButton();
+            }).catch(error => {
+                console.error('Ошибка воспроизведения:', error);
+                alert('Не атрымалася прайграць аудыё. Паспрабуйце яшчэ раз.');
+            });
+
             updateAudioStats();
         }
 
         function togglePlay() {
-            isPlaying = !isPlaying;
+            if (!audioElement) return;
+
+            if (isPlaying) {
+                audioElement.pause();
+                isPlaying = false;
+            } else {
+                audioElement.play().then(() => {
+                    isPlaying = true;
+                }).catch(error => {
+                    console.error('Ошибка воспроизведения:', error);
+                });
+            }
             updatePlayButton();
         }
 
@@ -208,17 +336,65 @@
         }
 
         function skipBack() {
-            console.log('Перемотка назад');
+            if (!audioElement) return;
+            audioElement.currentTime = Math.max(0, audioElement.currentTime - 10);
+            updateProgress();
         }
 
         function skipForward() {
-            console.log('Перемотка вперед');
+            if (!audioElement) return;
+            audioElement.currentTime = Math.min(audioElement.duration, audioElement.currentTime + 10);
+            updateProgress();
+        }
+
+        function setVolume(volume) {
+            if (audioElement) {
+                audioElement.volume = volume / 100;
+            }
+        }
+
+        function seekAudio(event) {
+            if (!audioElement || !audioElement.duration) return;
+
+            const progressBar = event.currentTarget;
+            const clickPosition = event.offsetX;
+            const progressBarWidth = progressBar.clientWidth;
+            const seekTime = (clickPosition / progressBarWidth) * audioElement.duration;
+
+            audioElement.currentTime = seekTime;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            if (!audioElement || !audioElement.duration) return;
+
+            const progress = (audioElement.currentTime / audioElement.duration) * 100;
+            document.getElementById('audio-progress').style.width = progress + '%';
+            document.getElementById('current-time').textContent = formatTime(audioElement.currentTime);
+        }
+
+        function resetProgress() {
+            document.getElementById('audio-progress').style.width = '0%';
+            document.getElementById('current-time').textContent = '0:00';
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds) || seconds === Infinity) return '0:00';
+
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
         function closePlayer() {
+            if (audioElement) {
+                audioElement.pause();
+                audioElement = null;
+            }
             document.getElementById('player').style.display = 'none';
             isPlaying = false;
             currentAudio = null;
+            resetProgress();
         }
 
         function updateAudioStats() {
@@ -228,8 +404,12 @@
         }
 
         function goBack() {
+            closePlayer();
             window.location.href = 'index.html';
         }
+
+        // Закрываем плеер при уходе со страницы
+        window.addEventListener('beforeunload', closePlayer);
     </script>
 </body>
 </html>
